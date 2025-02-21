@@ -1,3 +1,4 @@
+// /app/api/cart/add/route.ts
 import { NextResponse } from "next/server";
 import { inMemoryStore } from "@/lib/inMemoryStore";
 
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
       inMemoryStore.cart[userId] = [];
     }
 
+    // Check if item already exists in cart
     const existingItem = inMemoryStore.cart[userId].find((item) => item.productId === productId);
     if (existingItem) {
       existingItem.quantity += quantity;
