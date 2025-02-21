@@ -101,6 +101,9 @@ export default function CartPage() {
           <p>Order ID: {order.orderId}</p>
           <p>Total Amount: ₹{order.totalAmount}</p>
           {order.discountApplied && <p>Discount Applied: {order.discountCode}</p>}
+          <a href="/orders">
+            <button>View Orders</button>
+          </a>
         </div>
       )}
     </div>
