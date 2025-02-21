@@ -19,6 +19,7 @@ interface Store {
   orders: Order[];
   userOrderCount: Record<string, number>; // Track orders per user
   userDiscountCodes: Record<string, string[]>; // User-specific discount codes
+  adminDiscountCodes: string[];
 }
 
 export const inMemoryStore: Store = {
@@ -26,4 +27,5 @@ export const inMemoryStore: Store = {
   orders: [],
   userOrderCount: {}, // Track orders per user
   userDiscountCodes: {}, // Store discount codes per user
+  adminDiscountCodes: [],
 };
