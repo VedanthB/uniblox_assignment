@@ -1,4 +1,3 @@
-// /app/api/admin/summary/route.ts
 import { NextResponse } from "next/server";
 import { inMemoryStore } from "@/lib/inMemoryStore";
 
@@ -7,5 +6,6 @@ export async function GET() {
     totalOrders: inMemoryStore.orders.length,
     orders: inMemoryStore.orders,
     userDiscounts: inMemoryStore.userDiscountCodes, // ✅ Now showing user-specific discounts
+    adminDiscountCodes: inMemoryStore.adminDiscountCodes,
   });
 }
