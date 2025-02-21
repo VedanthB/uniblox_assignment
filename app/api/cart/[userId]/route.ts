@@ -9,9 +9,11 @@ export async function GET(req: Request, { params }: { params: { userId: string }
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
 
-    const cart = inMemoryStore.cart[userId] || [];
+    if (!inMemoryStore.cart[userId]) {
+      inMemoryStore.cart[userId] = []; // Ensure cart exists for user
+    }
 
-    return NextResponse.json({ cart }, { status: 200 });
+    return NextResponse.json({ cart: inMemoryStore.cart[userId] }, { status: 200 });
   } catch (error) {
     console.error("Error fetching cart:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
