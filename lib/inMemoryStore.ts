@@ -17,13 +17,13 @@ interface Order {
 interface Store {
   cart: Record<string, CartItem[]>; // UserID-based carts
   orders: Order[];
-  discountCodes: string[];
-  nthOrderCount: number;
+  userOrderCount: Record<string, number>; // Track orders per user
+  userDiscountCodes: Record<string, string[]>; // User-specific discount codes
 }
 
 export const inMemoryStore: Store = {
-  cart: {}, // Stores user-specific carts
+  cart: {}, // Stores user carts
   orders: [],
-  discountCodes: [],
-  nthOrderCount: 0,
+  userOrderCount: {}, // Track orders per user
+  userDiscountCodes: {}, // Store discount codes per user
 };
