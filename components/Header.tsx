@@ -64,7 +64,7 @@ export default function Header() {
               </Avatar>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-56" align="end">
               {/* Theme Toggle */}
               <DropdownMenuItem onClick={toggleTheme} className="flex items-center cursor-pointer gap-2">
                 {resolvedTheme === "dark" ? (
