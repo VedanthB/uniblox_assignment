@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
@@ -25,7 +26,7 @@ export default function SignUpPage() {
     if (response.ok) {
       router.push("/login");
     } else {
-      alert("Error: Username already exists or invalid input.");
+      toast.error("Error: Username already exists or invalid input.");
     }
   };
 

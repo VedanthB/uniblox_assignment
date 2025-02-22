@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface CartItem {
   productId: string;
@@ -112,7 +113,7 @@ export default function CartPage() {
         setCart([]);
         setOrder(data.order);
       } else {
-        alert(data.error);
+        toast.error(data.error);
       }
     } catch (error) {
       console.error("Error during checkout:", error);

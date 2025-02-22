@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function ProductsPage() {
   const { data: session, status } = useSession();
@@ -20,7 +21,7 @@ export default function ProductsPage() {
       return;
     }
     if (!session?.user?.id) {
-      alert("No user in session.");
+      toast.error("No user in session.");
       return;
     }
 
@@ -40,9 +41,9 @@ export default function ProductsPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Error adding item");
+        toast.error(data.error || "Error adding item");
       } else {
-        alert(`${name} added to cart`);
+        toast.success(`${name} added to cart`);
       }
     } catch (error) {
       console.error("Network error adding to cart:", error);
