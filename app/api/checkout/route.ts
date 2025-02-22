@@ -20,12 +20,11 @@ export async function POST(req: Request) {
 
     // If a discount code was provided, verify & apply
     if (discountCode) {
-      // Look up the user's available codes
       const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
+      // Find a code object that matches and is not expired
+      const codeObjIndex = userCodes.findIndex((dc) => dc.code === discountCode && dc.expired === false);
 
-      // Check if the provided code is in the user's list of valid (unused) codes
-      const codeIndex = userCodes.indexOf(discountCode);
-      if (codeIndex === -1) {
+      if (codeObjIndex === -1) {
         return NextResponse.json({ error: "Invalid or expired discount code" }, { status: 400 });
       }
 
@@ -33,8 +32,8 @@ export async function POST(req: Request) {
       discountApplied = true;
       totalAmount = totalAmount * 0.9; // 10% off
 
-      // Mark the code as “used” by removing it from user's list
-      userCodes.splice(codeIndex, 1);
+      // Mark code as used by removing it (or you could set dc.expired = true)
+      userCodes.splice(codeObjIndex, 1);
       inMemoryStore.userDiscountCodes[userId] = userCodes;
     }
 
@@ -42,6 +41,22 @@ export async function POST(req: Request) {
       inMemoryStore.userOrderCount[userId] = 0;
     }
     inMemoryStore.userOrderCount[userId]++;
+
+    // Generate a new code automatically for every 5th order
+    const newCount = inMemoryStore.userOrderCount[userId];
+    let newlyGeneratedCode: string | undefined;
+
+    if (newCount % 5 === 0) {
+      const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
+      // Expire old codes
+      userCodes.forEach((dc) => {
+        dc.expired = true;
+      });
+      // Generate a brand-new code
+      newlyGeneratedCode = `DISCOUNT-${Date.now()}`;
+      userCodes.push({ code: newlyGeneratedCode, expired: false });
+      inMemoryStore.userDiscountCodes[userId] = userCodes;
+    }
 
     // Create the order
     const newOrder = {
@@ -51,6 +66,7 @@ export async function POST(req: Request) {
       totalAmount,
       discountApplied,
       discountCode: discountApplied ? discountCode : undefined,
+      newDiscountCode: newlyGeneratedCode,
     };
 
     // Save order & clear cart
