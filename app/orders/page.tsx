@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface CartItem {
   productId: string;
@@ -23,19 +25,14 @@ interface Order {
 export default function OrderHistory() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (status === "loading") return; // Wait until session is known
-
+    if (status === "loading") return;
     if (status === "unauthenticated") {
-      // If not logged in, redirect to login
       router.push("/auth/login");
       return;
     }
-
-    // If we are authenticated and have an ID, fetch that user's orders
     if (session?.user?.id) {
       fetchUserOrders(session.user.id);
     }
@@ -55,39 +52,46 @@ export default function OrderHistory() {
     }
   }
 
-  // If still loading or about to redirect, show nothing
   if (status === "loading") {
     return <div>Loading...</div>;
   }
 
   if (!session) {
-    // We already pushed to /auth/login above
     return null;
   }
 
   return (
-    <div>
-      <h1>Your Order History</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Your Order History</h1>
       {orders.length === 0 ? (
-        <p>You have no past orders.</p>
+        <p className="text-gray-500 text-center">You have no past orders.</p>
       ) : (
-        <ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {orders.map((order) => (
-            <li key={order.orderId}>
-              <h3>Order ID: {order.orderId}</h3>
-              <p>Total Amount: ₹{order.totalAmount}</p>
-              {order.discountApplied && <p>Discount Applied: {order.discountCode}</p>}
-              <h4>Items:</h4>
-              <ul>
-                {order.items.map((item) => (
-                  <li key={item.productId}>
-                    {item.name} - {item.quantity} x ₹{item.price}
-                  </li>
-                ))}
-              </ul>
-            </li>
+            <Card key={order.orderId} className="shadow-lg flex flex-col h-full">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">Order ID: {order.orderId}</CardTitle>
+                <p className="text-gray-500">Total Amount: ₹{order.totalAmount.toFixed(2)}</p>
+                {order.discountApplied && <p className="text-green-500">Discount Applied: {order.discountCode}</p>}
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <h4 className="font-medium">Items:</h4>
+                <ul className="list-disc list-inside">
+                  {order.items.map((item) => (
+                    <li key={item.productId}>
+                      {item.name} - {item.quantity} x ₹{item.price.toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter className="mt-auto">
+                <Button variant="outline" className="w-full">
+                  View Details
+                </Button>
+              </CardFooter>
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
