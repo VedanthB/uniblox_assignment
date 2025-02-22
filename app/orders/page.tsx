@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface CartItem {
   productId: string;
@@ -19,25 +21,49 @@ interface Order {
 }
 
 export default function OrderHistory() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [orders, setOrders] = useState<Order[]>([]);
-  const [userId] = useState("user123"); // Temporary user session ID
 
   useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const response = await fetch(`/api/orders/${userId}`);
-        const data = await response.json();
-        if (response.ok) {
-          setOrders(data.orders || []);
-        } else {
-          console.error("Error fetching orders:", data.error);
-        }
-      } catch (error) {
-        console.error("Network error fetching orders:", error);
-      }
+    if (status === "loading") return; // Wait until session is known
+
+    if (status === "unauthenticated") {
+      // If not logged in, redirect to login
+      router.push("/auth/login");
+      return;
     }
-    fetchOrders();
-  }, [userId]);
+
+    // If we are authenticated and have an ID, fetch that user's orders
+    if (session?.user?.id) {
+      fetchUserOrders(session.user.id);
+    }
+  }, [status, session, router]);
+
+  async function fetchUserOrders(userId: string) {
+    try {
+      const response = await fetch(`/api/orders/${userId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setOrders(data.orders || []);
+      } else {
+        console.error("Error fetching orders:", data.error);
+      }
+    } catch (error) {
+      console.error("Network error fetching orders:", error);
+    }
+  }
+
+  // If still loading or about to redirect, show nothing
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    // We already pushed to /auth/login above
+    return null;
+  }
 
   return (
     <div>

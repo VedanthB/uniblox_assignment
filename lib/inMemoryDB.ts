@@ -3,6 +3,12 @@ interface DiscountCodeInfo {
   expired: boolean;
 }
 
+interface User {
+  id: string;
+  username: string;
+  password: string;
+}
+
 interface CartItem {
   productId: string;
   name: string;
@@ -22,6 +28,7 @@ interface Order {
 interface Store {
   cart: Record<string, CartItem[]>; // UserID-based carts
   orders: Order[];
+  users: User[];
   userOrderCount: Record<string, number>; // Track orders per user
   userDiscountCodes: Record<string, DiscountCodeInfo[]>; // User-specific discount codes
   adminDiscountCodes: string[];
@@ -30,6 +37,7 @@ interface Store {
 export const inMemoryStore: Store = {
   cart: {}, // Stores user carts
   orders: [],
+  users: [],
   userOrderCount: {}, // Track orders per user
   userDiscountCodes: {}, // Store discount codes per user
   adminDiscountCodes: [],

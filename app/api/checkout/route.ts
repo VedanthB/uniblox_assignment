@@ -1,64 +1,62 @@
 import { NextResponse } from "next/server";
+
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
 import { inMemoryStore } from "@/lib/inMemoryDB";
 
 export async function POST(req: Request) {
   try {
-    const { userId, discountCode } = await req.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    // ✅ Fetch the authenticated user's session
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const userId = session.user.id; // ✅ Use logged-in user ID
 
+    // ✅ Get the user's cart
     const cartItems = inMemoryStore.cart[userId];
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Calculate order total
+    // ✅ Calculate order total
     let totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     let discountApplied = false;
 
-    // If a discount code was provided, verify & apply
+    // ✅ Check for discount code
+    const { discountCode } = await req.json();
     if (discountCode) {
       const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
-      // Find a code object that matches and is not expired
-      const codeObjIndex = userCodes.findIndex((dc) => dc.code === discountCode && dc.expired === false);
+      const codeIndex = userCodes.findIndex((dc) => dc.code === discountCode && !dc.expired);
 
-      if (codeObjIndex === -1) {
+      if (codeIndex === -1) {
         return NextResponse.json({ error: "Invalid or expired discount code" }, { status: 400 });
       }
 
-      // Code is valid – apply discount
+      // ✅ Apply discount and expire the code
       discountApplied = true;
-      totalAmount = totalAmount * 0.9; // 10% off
-
-      // Mark code as used by removing it (or you could set dc.expired = true)
-      userCodes.splice(codeObjIndex, 1);
-      inMemoryStore.userDiscountCodes[userId] = userCodes;
+      totalAmount = totalAmount * 0.9;
+      userCodes[codeIndex].expired = true;
     }
 
+    // ✅ Increment user’s order count
     if (!inMemoryStore.userOrderCount[userId]) {
       inMemoryStore.userOrderCount[userId] = 0;
     }
     inMemoryStore.userOrderCount[userId]++;
 
-    // Generate a new code automatically for every 5th order
+    // ✅ Generate a discount code every 5th order
     const newCount = inMemoryStore.userOrderCount[userId];
     let newlyGeneratedCode: string | undefined;
-
     if (newCount % 5 === 0) {
       const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
-      // Expire old codes
-      userCodes.forEach((dc) => {
-        dc.expired = true;
-      });
-      // Generate a brand-new code
+      userCodes.forEach((dc) => (dc.expired = true)); // Expire previous codes
       newlyGeneratedCode = `DISCOUNT-${Date.now()}`;
       userCodes.push({ code: newlyGeneratedCode, expired: false });
       inMemoryStore.userDiscountCodes[userId] = userCodes;
     }
 
-    // Create the order
+    // ✅ Save the order
     const newOrder = {
       orderId: `ORDER-${Date.now()}`,
       userId,
@@ -69,9 +67,8 @@ export async function POST(req: Request) {
       newDiscountCode: newlyGeneratedCode,
     };
 
-    // Save order & clear cart
     inMemoryStore.orders.push(newOrder);
-    delete inMemoryStore.cart[userId];
+    delete inMemoryStore.cart[userId]; // Empty the cart after checkout
 
     return NextResponse.json({ message: "Order placed successfully", order: newOrder }, { status: 200 });
   } catch (error) {

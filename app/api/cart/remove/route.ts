@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import { inMemoryStore } from "@/lib/inMemoryDB";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { userId, productId } = await req.json();
+
+    // Ensure the user in the session matches the userId in the request
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     if (!userId || !productId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

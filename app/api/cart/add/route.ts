@@ -1,9 +1,16 @@
-// /app/api/cart/add/route.ts
 import { NextResponse } from "next/server";
 import { inMemoryStore } from "@/lib/inMemoryDB";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { userId, productId, name, price, quantity } = await req.json();
 
     if (!userId || !productId || !name || !price || !quantity) {
