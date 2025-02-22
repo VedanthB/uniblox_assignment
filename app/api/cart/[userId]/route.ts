@@ -10,10 +10,19 @@ export async function GET(req: Request, { params }: { params: { userId: string }
     }
 
     if (!inMemoryStore.cart[userId]) {
-      inMemoryStore.cart[userId] = []; // Ensure cart exists for user
+      inMemoryStore.cart[userId] = [];
     }
 
-    return NextResponse.json({ cart: inMemoryStore.cart[userId] }, { status: 200 });
+    // Return all codes (active + expired). The front-end can decide how to display them.
+    const discountCodes = inMemoryStore.userDiscountCodes[userId] || [];
+
+    return NextResponse.json(
+      {
+        cart: inMemoryStore.cart[userId],
+        discountCodes,
+      },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error fetching cart:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

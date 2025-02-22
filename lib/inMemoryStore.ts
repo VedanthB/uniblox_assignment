@@ -1,3 +1,8 @@
+interface DiscountCodeInfo {
+  code: string;
+  expired: boolean;
+}
+
 interface CartItem {
   productId: string;
   name: string;
@@ -18,7 +23,7 @@ interface Store {
   cart: Record<string, CartItem[]>; // UserID-based carts
   orders: Order[];
   userOrderCount: Record<string, number>; // Track orders per user
-  userDiscountCodes: Record<string, string[]>; // User-specific discount codes
+  userDiscountCodes: Record<string, DiscountCodeInfo[]>; // User-specific discount codes
   adminDiscountCodes: string[];
 }
 
