@@ -2,18 +2,17 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { products } from "@/data/products";
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
+import { products } from "@/data/products";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import ProductCard from "@/components/product-card";
 
 export default function ProductsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const addToCart = async (productId: string, name: string, price: number) => {
     if (status === "unauthenticated") {
@@ -47,42 +46,43 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error("Network error adding to cart:", error);
+      toast.error("Network error. Please try again.");
     } finally {
       setLoadingProductId(null);
     }
   };
 
+  const categories = ["All", ...new Set(products.map((p) => p.category))];
+
+  const filteredProducts =
+    selectedCategory === "All" ? products : products.filter((p) => p.category === selectedCategory);
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">All Products</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center text-foreground">All Products</h1>
+
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
+        {categories.map((category) => (
+          <Badge
+            key={category}
+            variant={selectedCategory === category ? "default" : "outline"}
+            onClick={() => setSelectedCategory(category)}
+            className="cursor-pointer"
+          >
+            {category}
+          </Badge>
+        ))}
+      </div>
+
+      {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <Card key={product.productId} className="shadow-md">
-            <Link href={`/products/${product.productId}`}>
-              <CardHeader className="p-0">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={400}
-                  height={300}
-                  className="object-cover w-full h-48"
-                />
-              </CardHeader>
-              <CardContent className="p-4">
-                <CardTitle className="text-lg font-semibold">{product.name}</CardTitle>
-                <p className="text-gray-600">₹{product.price}</p>
-              </CardContent>
-            </Link>
-            <CardFooter className="p-4">
-              <Button
-                onClick={() => addToCart(product.productId, product.name, product.price)}
-                disabled={loadingProductId === product.productId}
-                className="w-full"
-              >
-                {loadingProductId === product.productId ? "Adding..." : "Add to Cart"}
-              </Button>
-            </CardFooter>
-          </Card>
+        {filteredProducts.map((product) => (
+          <ProductCard
+            key={product.productId}
+            product={product}
+            addToCart={addToCart}
+            loadingProductId={loadingProductId}
+          />
         ))}
       </div>
     </div>
