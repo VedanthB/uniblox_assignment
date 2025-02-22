@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryStore } from "@/lib/inMemoryStore";
+import { inMemoryStore } from "@/lib/inMemoryDB";
 
 export async function GET(req: Request, { params }: { params: { userId: string } }) {
   try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { products } from "@/lib/products";
+import { products } from "@/data/products";
 import { useState } from "react";
 
 export default function ProductsPage() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { products } from "@/lib/products";
+import { products } from "@/data/products";
 
 interface Product {
   productId: string;

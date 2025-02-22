@@ -1,6 +1,6 @@
 // /app/api/cart/add/route.ts
 import { NextResponse } from "next/server";
-import { inMemoryStore } from "@/lib/inMemoryStore";
+import { inMemoryStore } from "@/lib/inMemoryDB";
 
 export async function POST(req: Request) {
   try {

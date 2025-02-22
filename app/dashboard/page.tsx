@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useAuthStore } from "@/lib/store";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useEffect } from "react";
 
 export default function Dashboard() {
