@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
@@ -25,12 +30,51 @@ export default function SignUpPage() {
   };
 
   return (
-    <div>
-      <h1>Sign Up</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <form onSubmit={handleSubmit}>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-        <button type="submit">Sign Up</button>
+        <Card className="w-full max-w-md min-w-[300px]">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Sign Up</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="Enter your username"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button className="w-full" type="submit">
+              Sign Up
+            </Button>
+            <p className="text-sm text-center text-gray-600">
+              Already have an account?{" "}
+              <Link href="/auth/login" className="text-primary hover:underline">
+                Log in
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
       </form>
     </div>
   );
