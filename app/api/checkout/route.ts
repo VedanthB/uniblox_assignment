@@ -3,40 +3,47 @@ import { inMemoryStore } from "@/lib/inMemoryStore";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await req.json();
+    const { userId, discountCode } = await req.json();
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
 
-    if (!inMemoryStore.cart[userId] || inMemoryStore.cart[userId].length === 0) {
+    const cartItems = inMemoryStore.cart[userId];
+    if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    const cartItems = inMemoryStore.cart[userId];
+    // Calculate order total
     let totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     let discountApplied = false;
-    let discountCode = "";
 
-    // Track user order count
+    // If a discount code was provided, verify & apply
+    if (discountCode) {
+      // Look up the user's available codes
+      const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
+
+      // Check if the provided code is in the user's list of valid (unused) codes
+      const codeIndex = userCodes.indexOf(discountCode);
+      if (codeIndex === -1) {
+        return NextResponse.json({ error: "Invalid or expired discount code" }, { status: 400 });
+      }
+
+      // Code is valid – apply discount
+      discountApplied = true;
+      totalAmount = totalAmount * 0.9; // 10% off
+
+      // Mark the code as “used” by removing it from user's list
+      userCodes.splice(codeIndex, 1);
+      inMemoryStore.userDiscountCodes[userId] = userCodes;
+    }
+
     if (!inMemoryStore.userOrderCount[userId]) {
       inMemoryStore.userOrderCount[userId] = 0;
     }
     inMemoryStore.userOrderCount[userId]++;
 
-    // Apply discount for every 5th order **for this user**
-    if (inMemoryStore.userOrderCount[userId] % 5 === 0) {
-      discountApplied = true;
-      discountCode = `DISCOUNT-${Date.now()}`;
-      totalAmount *= 0.9; // Apply 10% discount
-
-      // Store user-specific discount
-      if (!inMemoryStore.userDiscountCodes[userId]) {
-        inMemoryStore.userDiscountCodes[userId] = [];
-      }
-      inMemoryStore.userDiscountCodes[userId].push(discountCode);
-    }
-
+    // Create the order
     const newOrder = {
       orderId: `ORDER-${Date.now()}`,
       userId,
