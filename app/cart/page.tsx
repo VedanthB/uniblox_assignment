@@ -5,12 +5,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import Link from "next/link";
+import CartItem from "@/components/cart-item";
 
-interface CartItem {
+interface CartItemType {
   productId: string;
   name: string;
   price: number;
@@ -25,28 +26,20 @@ interface DiscountCodeInfo {
 
 interface Order {
   orderId: string;
-  userId: string;
-  items: CartItem[];
   totalAmount: number;
   discountApplied?: boolean;
   discountCode?: string;
-  newDiscountCode?: string;
-}
-
-interface CartResponse {
-  cart: CartItem[];
-  discountCodes: DiscountCodeInfo[];
 }
 
 export default function CartPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemType[]>([]);
   const [discountCodes, setDiscountCodes] = useState<DiscountCodeInfo[]>([]);
   const [discountCodeInput, setDiscountCodeInput] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
-  const [userId, setUserId] = useState("");
+  const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -55,78 +48,77 @@ export default function CartPage() {
       return;
     }
     if (session?.user?.id) {
-      setUserId(session.user.id);
+      fetchCart();
     }
   }, [status, session, router]);
 
-  useEffect(() => {
-    async function fetchCartAndCodes() {
-      if (!userId) return;
-      try {
-        const response = await fetch(`/api/cart/${userId}`);
-        const data: CartResponse = await response.json();
-        if (response.ok) {
-          setCart(data.cart || []);
-          setDiscountCodes(data.discountCodes || []);
-        } else {
-          console.error("Error fetching cart:", data);
-        }
-      } catch (error) {
-        console.error("Network error fetching cart:", error);
+  const fetchCart = async () => {
+    try {
+      const response = await fetch(`/api/cart/${session?.user?.id}`);
+      const data = await response.json();
+      if (response.ok) {
+        setCart(data.cart || []);
+        setDiscountCodes(data.discountCodes || []);
+      } else {
+        toast.error("Error loading cart.");
       }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      toast.error("Network error. Please try again.");
     }
-    fetchCartAndCodes();
-  }, [userId]);
+  };
 
-  const handleRemoveItem = async (productId: string) => {
-    if (!userId) return;
+  const removeFromCart = async (productId: string) => {
+    if (!session?.user?.id) return;
+
+    setLoadingProductId(productId);
     try {
       const response = await fetch("/api/cart/remove", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, productId }),
+        body: JSON.stringify({ userId: session.user.id, productId }),
       });
 
-      if (response.ok) {
-        setCart(cart.filter((item) => item.productId !== productId));
+      if (!response.ok) {
+        toast.error("Error removing item.");
       } else {
-        console.error("Error removing item");
+        toast.success("Item removed from cart.");
+        setCart(cart.filter((item) => item.productId !== productId));
       }
     } catch (error) {
-      console.error("Network error removing item:", error);
+      console.error("Error removing item:", error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setLoadingProductId(null);
     }
   };
 
   const handleCheckout = async () => {
-    if (!userId) return;
+    if (!session?.user?.id) return;
+
+    setIsCheckingOut(true);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          discountCode: discountCodeInput.trim() || null,
-        }),
+        body: JSON.stringify({ discountCode: discountCodeInput.trim() || null }),
       });
 
       const data = await response.json();
-      if (response.ok) {
-        setCart([]);
-        setOrder(data.order);
+      if (!response.ok) {
+        toast.error(data.error || "Checkout failed.");
       } else {
-        toast.error(data.error);
+        toast.success("Order placed successfully!");
+        setCart([]); // Clear cart after successful checkout
+        setOrder(data.order);
       }
     } catch (error) {
       console.error("Error during checkout:", error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsCheckingOut(false);
     }
   };
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return null;
-  }
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -134,71 +126,52 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
+      <h1 className="text-3xl font-bold mb-6 text-foreground">Your Cart</h1>
 
       {cart.length === 0 ? (
-        <p className="text-gray-500 text-center">Your cart is empty.</p>
+        <p className="text-muted-foreground text-center">Your cart is empty.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
+          {/* Cart Items */}
+          <div className="md:col-span-2 space-y-4">
             {cart.map((item) => (
-              <Card key={item.productId} className="mb-4 shadow-lg">
-                <div className="flex">
-                  <Link href={`/products/${item.productId}`}>
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={150}
-                      height={150}
-                      className="object-cover rounded-md cursor-pointer"
-                    />
-                  </Link>
-                  <div className="flex flex-col justify-between p-4 w-full">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">{item.name}</CardTitle>
-                      <p className="text-gray-600">Quantity: {item.quantity}</p>
-                      <p className="text-gray-600">Price: ₹{item.price.toFixed(2)}</p>
-                    </div>
-                    <Button variant="outline" onClick={() => handleRemoveItem(item.productId)} className="mt-4 w-full">
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+              <CartItem
+                key={item.productId}
+                item={item}
+                removeFromCart={removeFromCart}
+                loadingProductId={loadingProductId}
+              />
             ))}
           </div>
 
           {/* Order Summary & Discount Codes */}
           <div>
-            <Card className="p-4 shadow-md">
+            <Card className="p-4 shadow-md border border-border bg-card text-card-foreground">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold">Order Summary</CardTitle>
+                <CardTitle className="text-xl font-semibold text-foreground">Order Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-lg">Subtotal: ₹{calculateTotal().toFixed(2)}</p>
+                <p className="text-lg font-medium text-muted-foreground">Subtotal: ₹{calculateTotal().toFixed(2)}</p>
 
-                {/* Discount Codes Section */}
+                {/* Discount Codes */}
                 <div className="mt-6">
-                  <h2 className="text-md font-semibold">Your Discount Codes</h2>
+                  <h2 className="text-md font-semibold text-foreground">Your Discount Codes</h2>
                   {discountCodes.length === 0 ? (
-                    <p className="text-gray-500">No discount codes available.</p>
+                    <p className="text-muted-foreground">No discount codes available.</p>
                   ) : (
-                    <ul className="mt-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {discountCodes.map((dc, idx) => (
-                        <li
-                          key={idx}
-                          className={`text-sm p-1 rounded ${dc.expired ? "text-gray-400" : "text-green-600"}`}
-                        >
+                        <Badge key={idx} variant={dc.expired ? "destructive" : "outline"} className="text-xs">
                           {dc.code} {dc.expired && <span>(Expired)</span>}
-                        </li>
+                        </Badge>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
 
                 {/* Apply Discount Code */}
                 <div className="mt-4">
-                  <label htmlFor="discountCodeInput" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="discountCodeInput" className="block text-sm font-medium text-muted-foreground">
                     Apply Discount Code
                   </label>
                   <Input
@@ -212,8 +185,8 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" onClick={handleCheckout}>
-                  Proceed to Checkout
+                <Button className="w-full" onClick={handleCheckout} disabled={isCheckingOut}>
+                  {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
                 </Button>
               </CardFooter>
             </Card>
@@ -224,9 +197,9 @@ export default function CartPage() {
       {/* Order Confirmation */}
       {order && (
         <div className="mt-8">
-          <Card className="shadow-md p-6">
+          <Card className="shadow-md p-6 border border-border bg-card text-card-foreground">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-green-600">Order Confirmed</CardTitle>
+              <CardTitle className="text-2xl font-bold text-green-500">Order Confirmed</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-lg">
@@ -238,9 +211,9 @@ export default function CartPage() {
               )}
             </CardContent>
             <CardFooter>
-              <Link href="/orders">
-                <Button className="w-full">View Orders</Button>
-              </Link>
+              <Button asChild className="w-full">
+                <Link href="/orders">View Orders</Link>
+              </Button>
             </CardFooter>
           </Card>
         </div>
