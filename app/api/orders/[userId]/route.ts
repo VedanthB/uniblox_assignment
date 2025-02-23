@@ -1,5 +1,19 @@
 import { NextResponse } from "next/server";
-import { inMemoryStore } from "@/lib/inMemoryStore";
+import { inMemoryStore } from "@/lib/inMemoryDB";
+
+/**
+ * Get Order History API
+ *
+ * @param {Request} req - Request object.
+ * @param {object} params - URL parameters.
+ * @param {string} params.userId - The ID of the user whose order history is to be retrieved.
+ *
+ * @returns {NextResponse} JSON response containing the user's orders.
+ *
+ * This endpoint retrieves all orders from the inMemoryStore that match the provided userId.
+ * If no userId is provided, it returns an error. In case of an error during processing,
+ * it returns a 500 status with an appropriate error message.
+ */
 
 export async function GET(req: Request, { params }: { params: { userId: string } }) {
   try {

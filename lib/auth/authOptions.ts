@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { inMemoryStore } from "../inMemoryDB";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,13 +11,15 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // TODO: Replace this
-        const user = { id: "1", name: "Admin User", role: "admin", email: "admin@example.com" };
+        if (!credentials?.username || !credentials?.password) return null;
 
-        if (credentials?.username === "admin" && credentials?.password === "test123") {
-          return user;
-        }
-        return null;
+        const user = inMemoryStore.users.find(
+          (u) => u.username === credentials.username && u.password === credentials.password,
+        );
+
+        if (!user) return null; // Invalid credentials
+
+        return { id: user.id, name: user.username, role: user.role };
       },
     }),
     // Add more providers here
@@ -38,7 +41,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/auth/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

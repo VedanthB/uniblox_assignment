@@ -1,5 +1,19 @@
 import { NextResponse } from "next/server";
-import { inMemoryStore } from "@/lib/inMemoryStore";
+import { inMemoryStore } from "@/lib/inMemoryDB";
+
+/**
+ * Admin Generate Discount Code API
+ *
+ * @param {object} req - Request object containing JSON payload.
+ * @param {string} req.adminKey - Admin secret key for authorization.
+ * @param {string} [req.userId] - (Optional) User ID for a user-specific discount code.
+ *
+ * @returns {NextResponse} JSON response with a discount code if successful,
+ * or an error message otherwise.
+ *
+ * - If no userId is provided, generates a global discount code.
+ * - If a userId is provided, verifies that the user has ≥ 5 orders before generating a user-specific code.
+ */
 
 export async function POST(req: Request) {
   try {
