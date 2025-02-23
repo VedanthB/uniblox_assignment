@@ -1,5 +1,7 @@
 # ShopEasy – A Simple E-commerce Store
 
+[Loom Video for the app demo](https://www.loom.com/share/2231aa01832746e1af67db7db2951677?sid=8a5bf044-5ead-49c6-9f14-859c9f62d7c5)
+
 ## Technologies and Tools
 
 The project is built and tested using the following tools and technologies:
