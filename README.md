@@ -1,6 +1,5 @@
 # ShopEasy – A Simple E-commerce Store
 
-
 ## Table of Contents
 - [Installation](#installation)
 - [Folder Structure](#folder-structure)
@@ -18,31 +17,31 @@
 
 ## Installation
 1. Clone the repository:
-        ```bash
-        git clone https://github.com/VedanthB/uniblox_assignment.git
-        ```
+    ```bash
+    git clone https://github.com/VedanthB/uniblox_assignment.git
+    ```
 
 2. Install dependencies:
-        ```bash
-        npm install
-        # or
-        yarn install
-        ```
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
 3. Set up environment variables:
-        Create a `.env.local` file in the root directory with the following content:
-        ```env
-        NEXTAUTH_SECRET=ho1UvJ24bLFebjwDgrlaACsh3lP1uh7EonD/DN0N9Xo=
-        ADMIN_SECRET_KEY=mysecureadminkey
-        ```
+    Create a `.env.local` file in the root directory with the following content:
+    ```env
+    NEXTAUTH_SECRET=ho1UvJ24bLFebjwDgrlaACsh3lP1uh7EonD/DN0N9Xo=
+    ADMIN_SECRET_KEY=mysecureadminkey
+    ```
 
 4. Run the development server:
-        ```bash
-        npm run dev
-        # or
-        yarn dev
-        ```
-        Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
 ## Folder Structure
 ```
@@ -83,8 +82,8 @@
 │   ├── inMemoryDB.ts              # In‑memory datastore (holds orders, cart, discount codes, etc.).
 │   └── auth/authOptions.ts        # Configuration for NextAuth.
 └── /__tests__                     # Test suites using Vitest and React Testing Library.
-        ├── /api                       # Tests for API endpoints.
-        └── /pages                     # Tests for UI pages and components.
+    ├── /api                       # Tests for API endpoints.
+    └── /pages                     # Tests for UI pages and components.
 ```
 
 ## Environment Variables
@@ -101,12 +100,12 @@ The application exposes several RESTful APIs. Below is an overview of each endpo
 - **Endpoint:** `POST /api/admin/generate-discount`
 - **Description:** Generates a discount code. If a `userId` is provided, it creates a user‑specific code (only if the user has 5 or more orders); otherwise, it creates a global discount code.
 - **Request Body:**
-        ```json
-        {
-            "adminKey": "mysecureadminkey",
-            "userId": "optional-user-id"
-        }
-        ```
+    ```json
+    {
+        "adminKey": "mysecureadminkey",
+        "userId": "optional-user-id"
+    }
+    ```
 - **Responses:**
     - **201 – Global Discount Code Generated:**
         ```json
@@ -141,32 +140,32 @@ Refer to `/app/api/admin/generate-discount/route.ts` for the implementation.
 - **Endpoint:** `GET /api/admin/summary`
 - **Description:** Returns summary statistics of all orders, including total orders, total items purchased, total purchase amount, total discount amount, along with lists of orders and discount codes.
 - **Response Example:**
-        ```json
-        {
-            "totalOrders": 10,
-            "totalItemsPurchased": 25,
-            "totalPurchaseAmount": 5000,
-            "totalDiscountAmount": 300,
-            "orders": [/* array of order objects */],
-            "userDiscountCodes": { "user123": [ { "code": "DISCOUNT-...", "expired": false } ] },
-            "adminDiscountCodes": ["ADMIN-DISCOUNT-..."]
-        }
-        ```
+    ```json
+    {
+        "totalOrders": 10,
+        "totalItemsPurchased": 25,
+        "totalPurchaseAmount": 5000,
+        "totalDiscountAmount": 300,
+        "orders": [/* array of order objects */],
+        "userDiscountCodes": { "user123": [ { "code": "DISCOUNT-...", "expired": false } ] },
+        "adminDiscountCodes": ["ADMIN-DISCOUNT-..."]
+    }
+    ```
 
 See `/app/api/admin/summary/route.ts` for details.
-
+ 
 ### Authentication APIs
 
 #### User Sign-Up
 - **Endpoint:** `POST /api/auth/signup`
 - **Description:** Registers a new user.
 - **Request Body:**
-        ```json
-        {
-            "username": "testuser",
-            "password": "password123"
-        }
-        ```
+    ```json
+    {
+        "username": "testuser",
+        "password": "password123"
+    }
+    ```
 - **Responses:**
     - **201 – User Created:**
         ```json
@@ -201,16 +200,16 @@ See `/app/api/auth/[...nextauth]/route.ts`.
 - **Endpoint:** `GET /api/cart/[userId]`
 - **Description:** Retrieves the cart items and discount codes for the logged‑in user. Only the session user can access their own cart.
 - **Response Example:**
-        ```json
-        {
-            "cart": [
-                { "productId": "p1", "name": "Test Product", "price": 100, "quantity": 2 }
-            ],
-            "discountCodes": [
-                { "code": "TESTCODE", "expired": false }
-            ]
-        }
-        ```
+    ```json
+    {
+        "cart": [
+            { "productId": "p1", "name": "Test Product", "price": 100, "quantity": 2 }
+        ],
+        "discountCodes": [
+            { "code": "TESTCODE", "expired": false }
+        ]
+    }
+    ```
 
 Refer to `/app/api/cart/[userId]/route.ts` for details.
 
@@ -218,22 +217,22 @@ Refer to `/app/api/cart/[userId]/route.ts` for details.
 - **Endpoint:** `POST /api/cart/add`
 - **Description:** Adds a product to the cart. If the product already exists, its quantity is incremented.
 - **Request Body:**
-        ```json
-        {
-            "userId": "test-user",
-            "productId": "p1",
-            "name": "Test Product",
-            "price": 100,
-            "quantity": 1
-        }
-        ```
+    ```json
+    {
+        "userId": "test-user",
+        "productId": "p1",
+        "name": "Test Product",
+        "price": 100,
+        "quantity": 1
+    }
+    ```
 - **Response Example:**
-        ```json
-        {
-            "message": "Item added to cart successfully",
-            "cart": [ /* updated cart array */ ]
-        }
-        ```
+    ```json
+    {
+        "message": "Item added to cart successfully",
+        "cart": [ /* updated cart array */ ]
+    }
+    ```
 
 Refer to `/app/api/cart/add/route.ts`.
 
@@ -241,12 +240,12 @@ Refer to `/app/api/cart/add/route.ts`.
 - **Endpoint:** `POST /api/cart/remove`
 - **Description:** Removes an item from the cart.
 - **Request Body:**
-        ```json
-        {
-            "userId": "test-user",
-            "productId": "p1"
-        }
-        ```
+    ```json
+    {
+        "userId": "test-user",
+        "productId": "p1"
+    }
+    ```
 - **Responses:**
     - **200 – Successful Removal:**
         ```json
@@ -274,21 +273,24 @@ See `/app/api/cart/remove/route.ts` for details.
 - **Endpoint:** `POST /api/cart/update`
 - **Description:** Updates the quantity of a cart item. If the quantity is 0 or less, the item is removed.
 - **Request Body:**
-        ```json
-        {
-            "userId": "test-user",
-            "productId": "p1",
-            "quantity": 3
-        }
-        ```
+    ```json
+    {
+        "userId": "test-user",
+        "productId": "p1",
+        "quantity": 3
+    }
+    ```
 - **Response Example:**
-        ```json
-        {
-            "message": "Cart updated",
-            "cart": [ /* updated cart array */ ]
-        }
-        ```
+    ```json
+    {
+        "message": "Cart updated",
+        "cart": [ /* updated cart array */ ]
+    }
+    ```
 
+Refer to `/app/api/cart/update/route.ts`.
+
+####
 Refer to `/app/api/cart/update/route.ts`.
 
 #### Checkout
