@@ -40,7 +40,7 @@ export default function LoginPage() {
     if (result?.error) {
       toast.error("Admin login failed");
     } else {
-      router.push("/admin/dashboard");
+      router.push("/admin/summary");
     }
   };
 

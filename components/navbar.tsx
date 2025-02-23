@@ -87,7 +87,7 @@ export default function Header() {
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/admin/dashboard" className="flex items-center gap-2">
+                    <Link href="/admin/summary" className="flex items-center gap-2">
                       <User className="h-5 w-5" />
                       <span>Dashboard</span>
                     </Link>
