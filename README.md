@@ -473,19 +473,3 @@ yarn test
 
 Tests are located under the `/__tests__` folder with separate directories for API endpoints and UI pages/components.
 
-## Deployment
-
-ShopEasy can be deployed on Vercel with minimal configuration. Simply connect your Git repository to Vercel and configure the environment variables in the Vercel dashboard. For additional details, refer to the Next.js Deployment Documentation.
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Write tests for your changes.
-4. Submit a pull request with a detailed description of your changes.
-
-## License
-
-This project is licensed under the MIT License.
