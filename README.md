@@ -1,5 +1,14 @@
 # ShopEasy – A Simple E-commerce Store
 
+## Technologies and Tools
+
+The project is built and tested using the following tools and technologies:
+
+- **Next.js 15:** Used as the primary framework with its new app directory.
+- **NextAuth:** For authentication and session management.
+- **Vitest & React Testing Library:** For unit and integration testing of both backend APIs and UI pages.
+- **Tailwind CSS:** For styling the application with utility‑first CSS classes.
+
 ## Overview
 
 ShopEasy is a modern e-commerce platform built with Next.js, featuring:
