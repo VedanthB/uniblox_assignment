@@ -3,6 +3,21 @@ import { inMemoryStore } from "@/lib/inMemoryDB";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 
+/**
+ * Update Cart Item API
+ *
+ * @param {Request} req - Request object containing a JSON payload with:
+ *    - userId: string (required)
+ *    - productId: string (required)
+ *    - quantity: number (required)
+ *
+ * @returns {NextResponse} JSON response with a message and the updated cart,
+ * or an error message if the update fails.
+ *
+ * Note:
+ *  - If quantity is 0 or less, the item is removed from the cart.
+ */
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);

@@ -13,7 +13,6 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
 
-        // Check against in-memory users
         const user = inMemoryStore.users.find(
           (u) => u.username === credentials.username && u.password === credentials.password,
         );

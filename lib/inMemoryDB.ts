@@ -30,8 +30,8 @@ interface Store {
   cart: Record<string, CartItem[]>; // UserID-based carts
   orders: Order[];
   users: User[];
-  userOrderCount: Record<string, number>; // Track orders per user
-  userDiscountCodes: Record<string, DiscountCodeInfo[]>; // User-specific discount codes
+  userOrderCount: Record<string, number>;
+  userDiscountCodes: Record<string, DiscountCodeInfo[]>;
   adminDiscountCodes: string[];
 }
 
@@ -46,7 +46,7 @@ export const inMemoryStore: Store = {
       role: "admin",
     },
   ],
-  userOrderCount: {}, // Track orders per user
-  userDiscountCodes: {}, // Store discount codes per user
+  userOrderCount: {},
+  userDiscountCodes: {},
   adminDiscountCodes: [],
 };

@@ -3,6 +3,21 @@ import { inMemoryStore } from "@/lib/inMemoryDB";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 
+/**
+ * Get Cart API
+ *
+ * @param req - The incoming Request object.
+ * @param params - An object containing the userId parameter from the URL.
+ *
+ * @returns {NextResponse} JSON response containing:
+ *  - cart: An array of cart items for the specified user.
+ *  - discountCodes: An array of discount codes (both active and expired) for the user.
+ *
+ * Behavior:
+ *  - Verifies the user's session; only the logged-in user can access their own cart.
+ *  - Initializes the cart if it does not exist.
+ */
+
 export async function GET(req: Request, { params }: { params: { userId: string } }) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +37,6 @@ export async function GET(req: Request, { params }: { params: { userId: string }
       inMemoryStore.cart[userId] = [];
     }
 
-    // Return the user's discount codes (both active & expired)
     const discountCodes = inMemoryStore.userDiscountCodes[userId] || [];
 
     return NextResponse.json(

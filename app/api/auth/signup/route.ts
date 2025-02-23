@@ -1,6 +1,17 @@
 import { inMemoryStore } from "@/lib/inMemoryDB";
 import { NextResponse } from "next/server";
 
+/**
+ * User Sign-Up API
+ *
+ * @param {object} req - Request object containing JSON payload with:
+ *   - username: string (required)
+ *   - password: string (required)
+ *
+ * @returns {NextResponse} JSON response with a success message if the user is created,
+ * or an error message if the user already exists or if required fields are missing.
+ */
+
 export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();

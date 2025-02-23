@@ -21,8 +21,7 @@ import { ShoppingCart, Sparkle, LogOut, MoonIcon, SunIcon, User } from "lucide-r
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const userImage = "https://github.com/shadcn.png"; // Use image only if logged in
-
+  const userImage = "https://github.com/shadcn.png";
   const { setTheme, resolvedTheme } = useTheme();
   const { setMetaColor } = useMetaColor();
 
@@ -35,17 +34,14 @@ export default function Header() {
   return (
     <header className="border-b border-border/50 dark:border-border border-dashed sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        {/* Left - Logo */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold transition hover:text-primary">
             <Sparkle className="h-6 w-6 text-primary" />
-            <span>ShopEase</span>
+            <span>ShopEasy</span>
           </Link>
         </div>
 
-        {/* Right - Cart, Account Dropdown */}
         <div className="flex items-center space-x-6">
-          {/* Cart Icon */}
           <Link
             href="/cart"
             className={cn(
@@ -56,7 +52,6 @@ export default function Header() {
             <ShoppingCart className="h-6 w-6" />
           </Link>
 
-          {/* User Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
@@ -83,6 +78,18 @@ export default function Header() {
                     <Link href="/orders" className="flex items-center gap-2">
                       <User className="h-5 w-5" />
                       <span>Orders</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )}
+
+              {session?.user?.role === "admin" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard" className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                 </>

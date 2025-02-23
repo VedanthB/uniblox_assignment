@@ -3,6 +3,20 @@ import { inMemoryStore } from "@/lib/inMemoryDB";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 
+/**
+ * Add to Cart API
+ *
+ * @param {Request} req - Request object with JSON payload containing:
+ *   - userId: string (required)
+ *   - productId: string (required)
+ *   - name: string (required)
+ *   - price: number (required)
+ *   - quantity: number (required)
+ *
+ * @returns {NextResponse} JSON response with a success message and the updated cart,
+ * or an error message with the appropriate status code on failure.
+ */
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);

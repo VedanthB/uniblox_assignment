@@ -26,7 +26,7 @@ export default function LoginPage() {
     if (result?.error) {
       toast.error("Invalid username or password");
     } else {
-      router.push("/products"); // Redirect to products after login
+      router.push("/products");
     }
   };
 
@@ -40,7 +40,7 @@ export default function LoginPage() {
     if (result?.error) {
       toast.error("Admin login failed");
     } else {
-      router.push("/admin"); // Redirect to admin dashboard
+      router.push("/admin/dashboard");
     }
   };
 

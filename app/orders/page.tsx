@@ -94,7 +94,6 @@ export default function OrderHistory() {
                   ))}
                 </ul>
 
-                {/* "+X more items" if more than 3 */}
                 {order.items.length > 3 && (
                   <p className="text-xs text-muted-foreground text-right mt-2">+{order.items.length - 3} more items</p>
                 )}

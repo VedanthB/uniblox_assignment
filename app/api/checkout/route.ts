@@ -1,29 +1,43 @@
 import { NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import { inMemoryStore } from "@/lib/inMemoryDB";
 
+/**
+ * Checkout API
+ *
+ * @param {Request} req - Request object with an optional discountCode in its JSON payload.
+ *
+ * @returns {NextResponse} JSON response containing:
+ *   - message: Success message.
+ *   - order: The newly created order object.
+ *
+ * Behavior:
+ *   - Validates the user session.
+ *   - Retrieves the user's cart and calculates the total amount.
+ *   - Applies a 10% discount if a valid discountCode is provided.
+ *   - Increments the user's order count.
+ *   - Generates a new discount code every 5th order.
+ *   - Saves the order and clears the user's cart.
+ */
+
 export async function POST(req: Request) {
   try {
-    // ✅ Fetch the authenticated user's session
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = session.user.id; // ✅ Use logged-in user ID
+    const userId = session.user.id;
 
-    // ✅ Get the user's cart
     const cartItems = inMemoryStore.cart[userId];
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // ✅ Calculate order total
     let totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     let discountApplied = false;
 
-    // ✅ Check for discount code
+    // Check for discount code
     const { discountCode } = await req.json();
     if (discountCode) {
       const userCodes = inMemoryStore.userDiscountCodes[userId] || [];
@@ -33,19 +47,19 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid or expired discount code" }, { status: 400 });
       }
 
-      // ✅ Apply discount and expire the code
+      // Apply discount and expire the code
       discountApplied = true;
       totalAmount = totalAmount * 0.9;
       userCodes[codeIndex].expired = true;
     }
 
-    // ✅ Increment user’s order count
+    // Increment user’s order count
     if (!inMemoryStore.userOrderCount[userId]) {
       inMemoryStore.userOrderCount[userId] = 0;
     }
     inMemoryStore.userOrderCount[userId]++;
 
-    // ✅ Generate a discount code every 5th order
+    // Generate a discount code every 5th order
     const newCount = inMemoryStore.userOrderCount[userId];
     let newlyGeneratedCode: string | undefined;
     if (newCount % 5 === 0) {
@@ -56,7 +70,6 @@ export async function POST(req: Request) {
       inMemoryStore.userDiscountCodes[userId] = userCodes;
     }
 
-    // ✅ Save the order
     const newOrder = {
       orderId: `ORDER-${Date.now()}`,
       userId,
@@ -68,7 +81,7 @@ export async function POST(req: Request) {
     };
 
     inMemoryStore.orders.push(newOrder);
-    delete inMemoryStore.cart[userId]; // Empty the cart after checkout
+    delete inMemoryStore.cart[userId];
 
     return NextResponse.json({ message: "Order placed successfully", order: newOrder }, { status: 200 });
   } catch (error) {

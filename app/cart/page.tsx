@@ -133,7 +133,7 @@ export default function CartPage() {
         toast.error(data.error || "Checkout failed.");
       } else {
         toast.success("Order placed successfully!");
-        setCart([]); // Clear cart after successful checkout
+        setCart([]);
         setOrder(data.order);
       }
     } catch (error) {

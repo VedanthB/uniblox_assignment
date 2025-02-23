@@ -16,7 +16,6 @@ interface CartItemProps {
   item: CartItemType;
   removeFromCart: (productId: string) => void;
   loadingProductId: string | null;
-  // New prop for updating quantity:
   updateQuantity: (productId: string, newQuantity: number) => void;
   userId: string;
 }

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
@@ -46,11 +45,9 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [summary, setSummary] = useState<AdminSummary | null>(null);
 
-  // State for discount code generation form
   const [userIdForDiscount, setUserIdForDiscount] = useState<string>("");
   const [generatedDiscountCode, setGeneratedDiscountCode] = useState<string | null>(null);
 
-  // Define the chart configuration required by ChartContainer
   const chartConfig: ChartConfig = {
     name: {
       label: "Metric",
@@ -62,11 +59,10 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    // (Optional) Restrict access to admin users:
-    // if (session?.user?.role !== "admin") {
-    //   router.push("/");
-    //   return;
-    // }
+    if (session?.user?.role !== "admin") {
+      router.push("/");
+      return;
+    }
 
     fetch("/api/admin/summary")
       .then((res) => {
@@ -85,7 +81,6 @@ export default function AdminDashboardPage() {
   }, [session, router]);
 
   const handleGenerateDiscount = async () => {
-    // For demonstration purposes only; do not expose your admin key in production.
     const adminKey = "mysecureadminkey";
     const payload: { adminKey: string; userId?: string } = { adminKey };
 
@@ -105,7 +100,6 @@ export default function AdminDashboardPage() {
       } else {
         toast.success(data.message || "Discount code generated");
         setGeneratedDiscountCode(data.discountCode);
-        // Optionally refresh summary here if needed.
       }
     } catch (error) {
       console.error(error);
@@ -123,7 +117,6 @@ export default function AdminDashboardPage() {
     return <div className="container mx-auto p-6">Loading summary...</div>;
   }
 
-  // Prepare chart data based on summary values
   const chartData = [
     { name: "Total Orders", value: summary.totalOrders },
     { name: "Items Purchased", value: summary.totalItemsPurchased },
@@ -135,7 +128,6 @@ export default function AdminDashboardPage() {
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold mb-4 text-foreground">Admin Dashboard</h1>
 
-      {/* Admin Summary Card */}
       <Card className="border border-border bg-card text-card-foreground shadow-md">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Admin Summary</CardTitle>
@@ -173,7 +165,6 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Discount Code Generation Card */}
       <Card className="border border-border bg-card text-card-foreground shadow-md">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Generate Discount Code</CardTitle>
@@ -205,7 +196,6 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Summary Chart Card */}
       <Card className="border border-border bg-card text-card-foreground shadow-md">
         <CardHeader>
           <CardTitle className="text-xl font-bold">Summary Chart</CardTitle>

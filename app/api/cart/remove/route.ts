@@ -3,6 +3,21 @@ import { inMemoryStore } from "@/lib/inMemoryDB";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 
+/**
+ * Remove from Cart API
+ *
+ * @param {Request} req - Request object with JSON payload containing:
+ *   - userId: string (required)
+ *   - productId: string (required)
+ *
+ * @returns {NextResponse} JSON response with a success message and the updated cart,
+ * or an error message if the user is unauthorized, required fields are missing, or the cart is not found.
+ *
+ * Behavior:
+ *  - Validates that the session user matches the provided userId.
+ *  - Filters out the cart item with the specified productId.
+ */
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);

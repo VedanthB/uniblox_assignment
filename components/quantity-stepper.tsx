@@ -32,6 +32,7 @@ export default function QuantityStepper({
       } else {
         setQuantity(newQuantity);
         onQuantityChange(productId, newQuantity);
+        toast.success("Quantity updated");
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
