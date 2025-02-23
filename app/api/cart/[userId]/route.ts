@@ -18,14 +18,14 @@ import { authOptions } from "@/lib/auth/authOptions";
  *  - Initializes the cart if it does not exist.
  */
 
-export async function GET(req: Request, { params }: { params: { userId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ userId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = params.userId;
+    const { userId } = await params;
 
     // Ensure the user in the session matches the userId in the URL
     if (session.user.id !== userId) {

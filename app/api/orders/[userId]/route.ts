@@ -15,9 +15,9 @@ import { inMemoryStore } from "@/lib/inMemoryDB";
  * it returns a 500 status with an appropriate error message.
  */
 
-export async function GET(req: Request, { params }: { params: { userId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ userId: string }> }) {
   try {
-    const userId = params.userId;
+    const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
