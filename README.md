@@ -19,8 +19,7 @@
 ## Installation
 1. Clone the repository:
         ```bash
-        git clone https://github.com/your-username/shopeasy.git
-        cd shopeasy
+        git clone https://github.com/VedanthB/uniblox_assignment.git
         ```
 
 2. Install dependencies:
