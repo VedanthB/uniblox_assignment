@@ -8,11 +8,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,18 +24,31 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setError("Invalid username or password");
+      toast.error("Invalid username or password");
     } else {
       router.push("/products"); // Redirect to products after login
     }
   };
 
+  const handleAdminLogin = async () => {
+    const result = await signIn("credentials", {
+      redirect: false,
+      username: "admin@example.com",
+      password: "adminpass",
+    });
+
+    if (result?.error) {
+      toast.error("Admin login failed");
+    } else {
+      router.push("/admin"); // Redirect to admin dashboard
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={handleSubmit}>
         <Card className="w-full max-w-md min-w-[300px]">
           <CardHeader>
-            {error && <p className="text-red-500">{error}</p>}
             <CardTitle className="text-2xl font-bold text-center">Log in</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -63,6 +76,9 @@ export default function LoginPage() {
             </div>
             <Button className="w-full" type="submit">
               Login
+            </Button>
+            <Button className="w-full mt-2" type="button" variant="secondary" onClick={handleAdminLogin}>
+              Log in as Admin
             </Button>
           </CardContent>
           <CardFooter className="justify-center">

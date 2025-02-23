@@ -24,7 +24,8 @@ export default function SignUpPage() {
       body: JSON.stringify({ username, password }),
     });
     if (response.ok) {
-      router.push("/login");
+      router.push("/auth/login");
+      toast.success("Account created successfully. Please log in.");
     } else {
       toast.error("Error: Username already exists or invalid input.");
     }

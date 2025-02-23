@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null; // Invalid credentials
 
-        return { id: user.id, name: user.username };
+        return { id: user.id, name: user.username, role: user.role };
       },
     }),
     // Add more providers here
@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/auth/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

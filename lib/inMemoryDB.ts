@@ -7,6 +7,7 @@ interface User {
   id: string;
   username: string;
   password: string;
+  role?: string;
 }
 
 interface CartItem {
@@ -37,7 +38,14 @@ interface Store {
 export const inMemoryStore: Store = {
   cart: {}, // Stores user carts
   orders: [],
-  users: [],
+  users: [
+    {
+      id: "1",
+      username: "admin@example.com",
+      password: "adminpass",
+      role: "admin",
+    },
+  ],
   userOrderCount: {}, // Track orders per user
   userDiscountCodes: {}, // Store discount codes per user
   adminDiscountCodes: [],
