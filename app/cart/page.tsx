@@ -93,6 +93,30 @@ export default function CartPage() {
     }
   };
 
+  const updateQuantity = async (productId: string, newQuantity: number) => {
+    if (!session?.user?.id) return;
+    try {
+      const response = await fetch("/api/cart/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: session.user.id,
+          productId,
+          quantity: newQuantity,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.error || "Error updating quantity");
+      } else {
+        fetchCart();
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Network error. Please try again.");
+    }
+  };
+
   const handleCheckout = async () => {
     if (!session?.user?.id) return;
 
@@ -140,6 +164,8 @@ export default function CartPage() {
                 item={item}
                 removeFromCart={removeFromCart}
                 loadingProductId={loadingProductId}
+                updateQuantity={updateQuantity}
+                userId={session!.user.id}
               />
             ))}
           </div>

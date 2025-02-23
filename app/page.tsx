@@ -2,17 +2,52 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { products } from "@/data/products";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
+
+interface CartItemType {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
 
 export default function ProductsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+      return;
+    }
+    if (session?.user?.id) {
+      fetchCart();
+    }
+  }, [status, session, router]);
+
+  const fetchCart = async () => {
+    try {
+      const response = await fetch(`/api/cart/${session?.user?.id}`);
+      const data = await response.json();
+      if (response.ok) {
+        setCartItems(data.cart || []);
+      } else {
+        toast.error("Error loading cart.");
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      toast.error("Network error. Please try again.");
+    }
+  };
 
   const addToCart = async (productId: string, name: string, price: number) => {
     if (status === "unauthenticated") {
@@ -21,6 +56,13 @@ export default function ProductsPage() {
     }
     if (!session?.user?.id) {
       toast.error("No user in session.");
+      return;
+    }
+
+    // If product is already in cart, navigate to cart instead
+    const existingItem = cartItems.find((item) => item.productId === productId);
+    if (existingItem) {
+      router.push("/cart");
       return;
     }
 
@@ -43,6 +85,7 @@ export default function ProductsPage() {
         toast.error(data.error || "Error adding item");
       } else {
         toast.success(`${name} added to cart`);
+        fetchCart();
       }
     } catch (error) {
       console.error("Network error adding to cart:", error);
@@ -56,6 +99,12 @@ export default function ProductsPage() {
 
   const filteredProducts =
     selectedCategory === "All" ? products : products.filter((p) => p.category === selectedCategory);
+
+  // Map productId to quantity
+  const cartMap = cartItems.reduce<Record<string, number>>((acc, item) => {
+    acc[item.productId] = item.quantity;
+    return acc;
+  }, {});
 
   return (
     <div className="container mx-auto p-6">
@@ -82,6 +131,7 @@ export default function ProductsPage() {
             product={product}
             addToCart={addToCart}
             loadingProductId={loadingProductId}
+            currentQuantity={cartMap[product.productId] || 0}
           />
         ))}
       </div>

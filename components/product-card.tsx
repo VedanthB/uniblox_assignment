@@ -15,9 +15,10 @@ interface ProductCardProps {
   product: Product;
   addToCart: (productId: string, name: string, price: number) => void;
   loadingProductId: string | null;
+  currentQuantity?: number;
 }
 
-export default function ProductCard({ product, addToCart, loadingProductId }: ProductCardProps) {
+export default function ProductCard({ product, addToCart, loadingProductId, currentQuantity = 0 }: ProductCardProps) {
   return (
     <Card
       key={product.productId}
@@ -25,7 +26,6 @@ export default function ProductCard({ product, addToCart, loadingProductId }: Pr
     >
       <Link href={`/products/${product.productId}`} className="block p-4 flex-grow">
         <CardHeader className="p-0 mb-2">
-          {/* Consistent title height, truncate long names */}
           <div className="flex flex-col space-y-1">
             <div className="relative group">
               <CardTitle className="text-lg font-semibold text-foreground truncate" title={product.name}>
@@ -33,7 +33,7 @@ export default function ProductCard({ product, addToCart, loadingProductId }: Pr
               </CardTitle>
             </div>
             {product.category && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="bg-blue-400/10 text-xs ">
                 {product.category}
               </Badge>
             )}
@@ -44,15 +44,21 @@ export default function ProductCard({ product, addToCart, loadingProductId }: Pr
         </CardContent>
       </Link>
       <CardFooter className="p-4 border-t flex justify-center">
-        <Button
-          onClick={() => addToCart(product.productId, product.name, product.price)}
-          disabled={loadingProductId === product.productId}
-          variant="ghost"
-          className="flex items-center gap-2 text-primary hover:bg-primary/10 w-full"
-        >
-          <CirclePlus className="h-5 w-5" />
-          Add to Cart
-        </Button>
+        {currentQuantity > 0 ? (
+          <Button asChild variant="outline" className="w-full flex items-center text-primary hover:bg-primary/10">
+            <Link href="/cart">Go to Cart</Link>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => addToCart(product.productId, product.name, product.price)}
+            disabled={loadingProductId === product.productId}
+            variant="outline"
+            className="flex items-center gap-2 text-primary hover:bg-primary/10 w-full"
+          >
+            <CirclePlus className="h-5 w-5" />
+            Add to Cart
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
