@@ -26,7 +26,7 @@ export default function LoginPage() {
     if (result?.error) {
       toast.error("Invalid username or password");
     } else {
-      router.push("/products");
+      router.push("/");
     }
   };
 
